@@ -60,22 +60,26 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:text="@string/gender"/>
 
-            <RadioButton
-                android:id="@+id/maleRBtn"
+            <RadioGroup
+                android:id="@+id/radioGroup"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/male"/>
+                android:layout_height="wrap_content">
 
-            <RadioButton
-                android:id="@+id/femaleRBtn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/female"/>
+                <RadioButton
+                    android:id="@+id/maleRBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/male"/>
+
+                <RadioButton
+                    android:id="@+id/femaleRBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/female"/>
+
+            </RadioGroup>
 
         </LinearLayout>
 
@@ -86,12 +90,19 @@
             android:hint="@string/birth"
             android:inputType="date"/>
 
-        <EditText
-            android:id="@+id/emailText"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/email"
-            android:inputType="textEmailAddress"/>
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/emailText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/email"
+                android:inputType="textEmailAddress"/>
+
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
