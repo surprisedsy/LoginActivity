@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "513741678341",
+    "firebase_url": "https://loginactivity-e8060.firebaseio.com",
+    "project_id": "loginactivity-e8060",
+    "storage_bucket": "loginactivity-e8060.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:513741678341:android:79bc3f6e87a79e4c",
+        "android_client_info": {
+          "package_name": "com.example.loginactivity"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "513741678341-2g519a94miac2l3s013oslrd0o4na5ko.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.loginactivity",
+            "certificate_hash": "361a763b11d30ef528d19865c0d56a280332bb29"
+          }
+        },
+        {
+          "client_id": "513741678341-kou284shqgkajl6dp0luah4e21dt8m3t.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC-r_xSXIVX6UeBpSoB48PDf0DXnEg7Gnw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "513741678341-kou284shqgkajl6dp0luah4e21dt8m3t.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
