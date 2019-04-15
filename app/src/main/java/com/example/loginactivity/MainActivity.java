@@ -9,7 +9,9 @@ import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
-    Button login, join;
+    private long backKeyClickTime = 0;
+
+    private Button login, join;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -19,8 +21,7 @@ public class MainActivity extends AppCompatActivity {
         click();
     }
 
-    public void click()
-    {
+    public void click() {
         login = (Button) findViewById(R.id.loginBtn);
         login.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -42,8 +43,17 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
+//        super.onBackPressed();
 
-        Toast.makeText(this, "한번 더 누르면 종료됩니다.", Toast.LENGTH_SHORT).show();
+        if (System.currentTimeMillis() > backKeyClickTime + 1500) {
+            backKeyClickTime = System.currentTimeMillis();
+            Toast.makeText(this, "한번 더 누르시면 종료됩니다.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (System.currentTimeMillis() <= backKeyClickTime + 1500) {
+            this.finish();
+        }
+
     }
+
 }
