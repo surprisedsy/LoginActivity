@@ -35,8 +35,7 @@ public class JoinActivity extends AppCompatActivity {
 
     private FirebaseFirestore firestore = FirebaseFirestore.getInstance();
 
-    public EditText id, pass;
-    private EditText passCheck, name, birth, email;
+    private EditText id, pass, passCheck, name, birth, email;
     private RadioGroup group;
     private RadioButton gender;
     private Button idCheck, submit, back;
@@ -96,19 +95,19 @@ public class JoinActivity extends AppCompatActivity {
         gender = (RadioButton) findViewById(radioBtn);
 
         String passTxt = BCrypt.hashpw(pass.getText().toString(), BCrypt.gensalt());
-        String checkTxt = BCrypt.hashpw(passCheck.getText().toString(), BCrypt.gensalt());
+        String checkTxt = passCheck.getText().toString();
         String emailTxt = email.getText().toString();
 
         user.put("Id", id.getText().toString());
         user.put("Pass", passTxt);
-        user.put("Name", checkTxt);
+        user.put("Name", name.getText().toString());
         user.put("Birth", birth.getText().toString());
         user.put("Email", validateEmail(emailTxt));
         user.put("Gender", gender.getText().toString());
 
         Log.d("bcrypt password 확인", passTxt + "..." + checkTxt);
 
-        if (!passTxt.equals(checkTxt)) {
+        if (!pass.getText().toString().equals(checkTxt)) {
             Toast.makeText(this, "비밀번호가 일치하지 않습니다.", Toast.LENGTH_SHORT).show();
         } else {
             firestore.collection("userData")
