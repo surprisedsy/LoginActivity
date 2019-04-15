@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">로그인 연습</string>
+    <string name="idText">아이디를 입력해주세요</string>
+    <string name="passText">비밀번호를 입력해주세요</string>
+    <string name="loginBtn">로그인</string>
+    <string name="joinBtn">회원가입</string>
+    <string name="checkBox">자동 로그인</string>
+
+
+    <string name="joinIdText">아이디 입력</string>
+    <string name="IdCheckBtn">ID 중복확인</string>
+    <string name="joinPassText">비밀번호 입력</string>
+    <string name="joinPassCheckText">비밀번호 입력 확인</string>
+
+    <string name="joinNameText">이름</string>
+    <string name="gender">성별</string>
+    <string name="male">남</string>
+    <string name="female">여</string>
+    <string name="birth">생년월일(예: 1992.05.18)</string>
+    <string name="email">Email</string>
+
+    <string name="okBtn">확인</string>
+    <string name="back">뒤로가기</string>
+</resources>
