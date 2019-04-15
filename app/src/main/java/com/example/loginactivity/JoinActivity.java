@@ -12,15 +12,21 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.mindrot.jbcrypt.BCrypt;
 
 public class JoinActivity extends AppCompatActivity {
 
@@ -29,7 +35,8 @@ public class JoinActivity extends AppCompatActivity {
 
     private FirebaseFirestore firestore = FirebaseFirestore.getInstance();
 
-    private EditText id, pass, passCheck, name, birth, email;
+    public EditText id, pass;
+    private EditText passCheck, name, birth, email;
     private RadioGroup group;
     private RadioButton gender;
     private Button idCheck, submit, back;
@@ -59,6 +66,14 @@ public class JoinActivity extends AppCompatActivity {
     }
 
     public void buttons() {
+
+        idCheck.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                checkUserId();
+            }
+        });
+
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -76,35 +91,67 @@ public class JoinActivity extends AppCompatActivity {
 
     public void insertUserData() {
         Map<String, Object> user = new HashMap<>();
+
         int radioBtn = group.getCheckedRadioButtonId();
         gender = (RadioButton) findViewById(radioBtn);
 
+        String passTxt = BCrypt.hashpw(pass.getText().toString(), BCrypt.gensalt());
+        String checkTxt = BCrypt.hashpw(passCheck.getText().toString(), BCrypt.gensalt());
+        String emailTxt = email.getText().toString();
+
         user.put("Id", id.getText().toString());
-        user.put("Pass", pass.getText().toString());
-        user.put("Name", name.getText().toString());
+        user.put("Pass", passTxt);
+        user.put("Name", checkTxt);
         user.put("Birth", birth.getText().toString());
-        user.put("Email", validateEmail(email.getText().toString()));
+        user.put("Email", validateEmail(emailTxt));
         user.put("Gender", gender.getText().toString());
 
+        Log.d("bcrypt password 확인", passTxt + "..." + checkTxt);
+
+        if (!passTxt.equals(checkTxt)) {
+            Toast.makeText(this, "비밀번호가 일치하지 않습니다.", Toast.LENGTH_SHORT).show();
+        } else {
+            firestore.collection("userData")
+                    .add(user)
+                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                        @Override
+                        public void onSuccess(DocumentReference documentReference) {
+                            Toast.makeText(JoinActivity.this, "Join Success", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(JoinActivity.this, "Join Failed", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        }
+    }
+
+    public void checkUserId() {
         firestore.collection("userData")
-                .add(user)
-                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
-                    public void onSuccess(DocumentReference documentReference) {
-                        Toast.makeText(JoinActivity.this, "Join Success", Toast.LENGTH_SHORT).show();
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            if (document.get("Id").equals(id.getText().toString())) {
+                                Toast.makeText(JoinActivity.this, "이미 등록된 아이디 입니다.", Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(JoinActivity.this, "사용 가능한 아이디 입니다.", Toast.LENGTH_SHORT).show();
+                            }
+                        }
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(JoinActivity.this, "Join Failed", Toast.LENGTH_SHORT).show();
+
                     }
                 });
-
     }
 
-    public static boolean validateEmail(String emailStr)
-    {
+    public static boolean validateEmail(String emailStr) {
         Matcher matcher = VALID_EMAIL_ADDRESS_REGEX.matcher(emailStr);
         return matcher.find();
     }
@@ -117,6 +164,7 @@ public class JoinActivity extends AppCompatActivity {
         startActivity(backIntent);
         finish();
     }
+
 }
 
 
