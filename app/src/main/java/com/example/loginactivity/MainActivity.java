@@ -19,6 +19,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import org.mindrot.jbcrypt.BCrypt;
+
 public class MainActivity extends AppCompatActivity {
 
     private long backKeyClickTime = 0;
@@ -39,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
 
         Init();
         click();
-        login();
+        logIn();
         checkAutoLogin();
     }
 
@@ -53,7 +55,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void click() {
-
         join.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -63,36 +64,40 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    public void login() {
-        firestore.collection("userData")
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        for (QueryDocumentSnapshot document : task.getResult()) {
+    public void logIn() {
+        login.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                firestore.collection("userData")
+                        .get()
+                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
 
-                            final String inputId = id.getText().toString();
-                            final String convert = document.get("Id").toString();
+                                String inputId = id.getText().toString();
+                                String inputPass = pass.getText().toString();
+                                String pass_hash = BCrypt.hashpw(inputPass, BCrypt.gensalt());
 
-                            Log.d("aaaaaaaConvert", convert);
-                            Log.d("aaaaaaaInput", inputId);
+                                for (QueryDocumentSnapshot document : task.getResult()) {
+                                    String convert = document.get("Id").toString();
+                                    String passConvert = document.get("Pass").toString();
 
-                            login.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
+                                    Log.d("aaaaaa", pass_hash + " ///// " + passConvert);
+
                                     if (convert.equals(inputId)) {
-
-                                        Intent loginIntent = new Intent(MainActivity.this, LoginActivity.class);
-                                        loginIntent.putExtra("IdInfo", id.getText().toString());
-                                        startActivity(loginIntent);
-                                    } else {
-                                        Toast.makeText(MainActivity.this, "우ㅏ아ㅏㅇ알", Toast.LENGTH_SHORT).show();
+                                        if (BCrypt.checkpw(passConvert, pass_hash)) {
+                                            Intent loginIntent = new Intent(MainActivity.this, LoginActivity.class);
+                                            loginIntent.putExtra("IdInfo", id.getText().toString());
+                                            startActivity(loginIntent);
+                                        } else {
+                                            Toast.makeText(MainActivity.this, "비번 안맞음", Toast.LENGTH_SHORT).show();
+                                        }
                                     }
                                 }
-                            });
-                        }
-                    }
-                });
+                            }
+                        });
+            }
+        });
     }
 
     public void checkAutoLogin() {
