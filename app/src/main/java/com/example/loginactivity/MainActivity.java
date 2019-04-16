@@ -73,19 +73,15 @@ public class MainActivity extends AppCompatActivity {
                         .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                             @Override
                             public void onComplete(@NonNull Task<QuerySnapshot> task) {
-
                                 String inputId = id.getText().toString();
                                 String inputPass = pass.getText().toString();
-                                String pass_hash = BCrypt.hashpw(inputPass, BCrypt.gensalt());
 
                                 for (QueryDocumentSnapshot document : task.getResult()) {
                                     String convert = document.get("Id").toString();
                                     String passConvert = document.get("Pass").toString();
 
-                                    Log.d("aaaaaa", pass_hash + " ///// " + passConvert);
-
                                     if (convert.equals(inputId)) {
-                                        if (BCrypt.checkpw(passConvert, pass_hash)) {
+                                        if (BCrypt.checkpw(inputPass, passConvert)) {
                                             Intent loginIntent = new Intent(MainActivity.this, LoginActivity.class);
                                             loginIntent.putExtra("IdInfo", id.getText().toString());
                                             startActivity(loginIntent);
