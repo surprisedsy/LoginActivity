@@ -43,7 +43,7 @@ public class LoginActivity extends AppCompatActivity {
     {
         Intent getData = getIntent();
         String data = getData.getStringExtra("IdInfo");
-
+        
         firestore.collection("userData")
                 .whereEqualTo("Id", data)
                 .get()
@@ -52,12 +52,12 @@ public class LoginActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         for(QueryDocumentSnapshot document : task.getResult())
                         {
-                            id.setText(document.get("Id").toString());
-                            pass.setText(document.get("Pass").toString());
-                            name.setText(document.get("Name").toString());
-                            birth.setText(document.get("Birth").toString());
-                            email.setText(document.get("Email").toString());
-                            gender.setText(document.get("Gender").toString());
+                            id.setText("아이디 : " + document.get("Id").toString());
+                            pass.setText("비밀번호 : " +document.get("Pass").toString());
+                            name.setText("이름 : " +document.get("Name").toString());
+                            birth.setText("생일 : " +document.get("Birth").toString());
+                            email.setText("이메일 : " +document.get("Email").toString());
+                            gender.setText("성별 : " +document.get("Gender").toString());
                         }
                     }
                 })

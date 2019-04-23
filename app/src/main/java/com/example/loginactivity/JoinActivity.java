@@ -140,10 +140,15 @@ public class JoinActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         for (QueryDocumentSnapshot document : task.getResult()) {
-                            if (document.get("Id").equals(editTxtId))
+                            if (document.get("Id").equals(editTxtId)) {
+                                Log.d("aaaaaa", editTxtId);
                                 Toast.makeText(JoinActivity.this, "이미 등록된 아이디 입니다.", Toast.LENGTH_SHORT).show();
-                            else
+                            } else {
+                                Log.d("aaaaaa", editTxtId);
+                                Log.d("aaaaaa", "else문 들어감");
                                 Toast.makeText(JoinActivity.this, "사용 가능한 아이디 입니다.", Toast.LENGTH_SHORT).show();
+                            }
+
                         }
                     }
                 })
