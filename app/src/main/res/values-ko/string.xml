@@ -18,7 +18,7 @@
     <string name="male">남</string>
     <string name="female">여</string>
     <string name="birth">생년월일(예: 1992.05.18)</string>
-    <string name="email">Email</string>
+    <string name="email">Email(예: abcd@android.com)</string>
 
     <string name="okBtn">확인</string>
     <string name="back">뒤로가기</string>

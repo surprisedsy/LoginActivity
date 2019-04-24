@@ -2,6 +2,7 @@ package com.example.loginactivity;
 
 import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -17,11 +18,16 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -87,9 +93,37 @@ public class JoinActivity extends AppCompatActivity {
         back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onBackPressed();
+                goToMain();
             }
         });
+    }
+
+    public void checkUserId() {
+
+        final String editTxtId = id.getText().toString();
+        final List<String> idCheckList = new ArrayList<>();
+
+        firestore.collection("userData")
+                .whereEqualTo("Id", editTxtId)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            idCheckList.add(document.get("Id").toString());
+                        }
+                        if(!idCheckList.contains(editTxtId))
+                            Toast.makeText(JoinActivity.this, "사용 가능한 아이디 입니다.", Toast.LENGTH_SHORT).show();
+                        else
+                            Toast.makeText(JoinActivity.this, "이미 등록된 아이디 입니다.", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        e.printStackTrace();
+                    }
+                });
     }
 
     public void insertUserData() {
@@ -117,58 +151,27 @@ public class JoinActivity extends AppCompatActivity {
                     .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                         @Override
                         public void onSuccess(DocumentReference documentReference) {
-                            Toast.makeText(JoinActivity.this, "Join Success", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(JoinActivity.this, "가입 성공", Toast.LENGTH_LONG).show();
+                            goToMain();
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            Toast.makeText(JoinActivity.this, "Join Failed", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(JoinActivity.this, "가입 실패", Toast.LENGTH_SHORT).show();
                         }
                     });
         }
     }
 
-    public void checkUserId() {
-
-        final String editTxtId = id.getText().toString();
-
-        firestore.collection("userData")
-                .whereEqualTo("Id", editTxtId)
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            if (document.get("Id").equals(editTxtId)) {
-                                Log.d("aaaaaa", editTxtId);
-                                Toast.makeText(JoinActivity.this, "이미 등록된 아이디 입니다.", Toast.LENGTH_SHORT).show();
-                            } else {
-                                Log.d("aaaaaa", editTxtId);
-                                Log.d("aaaaaa", "else문 들어감");
-                                Toast.makeText(JoinActivity.this, "사용 가능한 아이디 입니다.", Toast.LENGTH_SHORT).show();
-                            }
-
-                        }
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        e.printStackTrace();
-                    }
-                });
-    }
-
+    // 이메일이 맞는지 아닌지 체크하는 함수. 여기서는 이메일 값을 가져와야 해서 안씀
     public static boolean validateEmail(String emailStr) {
         Matcher matcher = VALID_EMAIL_ADDRESS_REGEX.matcher(emailStr);
         return matcher.find();
     }
 
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-
+    public void goToMain()
+    {
         Intent backIntent = new Intent(JoinActivity.this, MainActivity.class);
         startActivity(backIntent);
         finish();

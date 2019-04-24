@@ -3,6 +3,7 @@ package com.example.loginactivity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,11 +17,19 @@ import android.widget.Toast;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.Source;
 
 import org.mindrot.jbcrypt.BCrypt;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -61,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent joinIntent = new Intent(MainActivity.this, JoinActivity.class);
                 startActivity(joinIntent);
+                finish();
             }
         });
     }
@@ -77,28 +87,43 @@ public class MainActivity extends AppCompatActivity {
                                 String inputId = id.getText().toString();
                                 String inputPass = pass.getText().toString();
 
+                                List<String> idList = new ArrayList<>();
+
                                 for (QueryDocumentSnapshot document : task.getResult()) {
                                     String convert = document.get("Id").toString();
                                     String passConvert = document.get("Pass").toString();
 
+                                    idList.add(convert);
+
                                     if (convert.equals(inputId)) {
                                         if (BCrypt.checkpw(inputPass, passConvert)) {
                                             Intent loginIntent = new Intent(MainActivity.this, LoginActivity.class);
-                                            loginIntent.putExtra("IdInfo", id.getText().toString());
+                                            loginIntent.putExtra("IdInfo", inputId);
+
+                                            if(!auto.isChecked())
+                                            {
+                                                id.setText(null);
+                                                pass.setText(null);
+                                            }
+
                                             startActivity(loginIntent);
                                         } else {
-                                            Toast.makeText(MainActivity.this, "비번 안맞음", Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(MainActivity.this, "비번을 확인해주세요", Toast.LENGTH_SHORT).show();
                                         }
                                     }
                                 }
+                                if (!idList.contains(inputId))
+                                    Toast.makeText(MainActivity.this, "아이디를 확인해주세요", Toast.LENGTH_SHORT).show();
                             }
                         })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        e.printStackTrace();
-                    }
-                });
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                e.printStackTrace();
+                            }
+                        });
+
+
             }
         });
     }
@@ -134,8 +159,6 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-//        super.onBackPressed();
-
         if (System.currentTimeMillis() > backKeyClickTime + 1500) {
             backKeyClickTime = System.currentTimeMillis();
             Toast.makeText(this, "한번 더 누르시면 종료됩니다.", Toast.LENGTH_SHORT).show();
