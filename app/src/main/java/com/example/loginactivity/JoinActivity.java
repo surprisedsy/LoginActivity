@@ -84,7 +84,6 @@ public class JoinActivity extends AppCompatActivity {
             public void onClick(View view) {
                 if (pass.getText().toString().equals(passCheck.getText().toString())) {
                     insertUserData();
-                    finish();
                 } else
                     insertUserData();
             }
