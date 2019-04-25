@@ -22,6 +22,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -110,18 +112,21 @@ public class JoinActivity extends AppCompatActivity implements View.OnClickListe
         String passStr = BCrypt.hashpw(joinPassEdTxt.getText().toString(), BCrypt.gensalt());
         String passCheckStr = joinPassCheckEdTxt.getText().toString();
         String joinEmailStr = joinEmailEdTxt.getText().toString();
+        String joinBirthStr = joinBirthEdTxt.getText().toString();
 
-        if (!joinPassEdTxt.getText().toString().equals(passCheckStr)) {
-            shortToastMessage("비밀번호가 일치하지 않습니다.");
-        } else if (idCheckList.contains(joinIdEdTxt.getText().toString())) {
+        if (idCheckList.contains(joinIdEdTxt.getText().toString())) {
             shortToastMessage("사용중인 아이디로는 가입할 수 없습니다.");
+        } else if (!joinPassEdTxt.getText().toString().equals(passCheckStr)) {
+            shortToastMessage("비밀번호가 일치하지 않습니다.");
+        } else if (!validationDate(joinBirthStr)) {
+            shortToastMessage("올바른 생일 형식으로 입력해 주세요.");
         } else if (!Patterns.EMAIL_ADDRESS.matcher(joinEmailStr).matches()) {
             shortToastMessage("이메일 형식으로 입력해 주세요.");
-        } else {
+        }  else {
             userInfo.put("Id", joinIdEdTxt.getText().toString());
             userInfo.put("Pass", passStr);
             userInfo.put("Name", joinNameEdTxt.getText().toString());
-            userInfo.put("Birth", joinBirthEdTxt.getText().toString());
+            userInfo.put("Birth", joinBirthStr);
             userInfo.put("Email", joinEmailStr);
             userInfo.put("Gender", genderRaBtn.getText().toString());
 
@@ -151,6 +156,21 @@ public class JoinActivity extends AppCompatActivity implements View.OnClickListe
         Intent backIntent = new Intent(getApplicationContext(), LoginActivity.class);
         startActivity(backIntent);
         finish();
+    }
+
+    public boolean validationDate(String birth)
+    {
+        try {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+            dateFormat.setLenient(false);
+            dateFormat.parse(birth);
+            return true;
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     @Override
