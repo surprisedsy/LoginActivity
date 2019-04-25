@@ -16,6 +16,6 @@
     <string name="female">Woman</string>
     <string name="birth">Birth</string>
     <string name="email">Email</string>
-    <string name="okBtn">OK</string>
+    <string name="submitBtn">Submit</string>
     <string name="back">Back</string>
 </resources>

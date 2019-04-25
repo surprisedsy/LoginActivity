@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -30,10 +31,7 @@ import java.util.regex.Pattern;
 
 import org.mindrot.jbcrypt.BCrypt;
 
-public class JoinActivity extends AppCompatActivity {
-
-    public static final Pattern VALID_EMAIL_ADDRESS_REGEX
-            = Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
+public class JoinActivity extends AppCompatActivity implements View.OnClickListener{
 
     private FirebaseFirestore firestore = FirebaseFirestore.getInstance();
 
@@ -50,11 +48,11 @@ public class JoinActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_join);
 
-        Init();
+        init();
         buttons();
     }
 
-    public void Init() {
+    public void init() {
         joinIdEdTxt = findViewById(R.id.joinIdText);
         joinPassEdTxt = findViewById(R.id.joinPassText);
         joinPassCheckEdTxt = findViewById(R.id.joinPassCheckText);
@@ -70,36 +68,16 @@ public class JoinActivity extends AppCompatActivity {
     }
 
     public void buttons() {
-        idCheckBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                checkUserId();
-            }
-        });
-
-        submitBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (joinPassEdTxt.getText().toString().equals(joinPassCheckEdTxt.getText().toString())) {
-                    insertUserData();
-                } else
-                    insertUserData();
-            }
-        });
-
-        backBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                goToMain();
-            }
-        });
+        idCheckBtn.setOnClickListener(this);
+        submitBtn.setOnClickListener(this);
+        backBtn.setOnClickListener(this);
     }
 
     public void checkUserId() {
-        final String checkId = joinIdEdTxt.getText().toString();
+        final String joinIdCheckStr = joinIdEdTxt.getText().toString();
 
         firestore.collection("userData")
-                .whereEqualTo("Id", checkId)
+                .whereEqualTo("Id", joinIdCheckStr)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -107,10 +85,12 @@ public class JoinActivity extends AppCompatActivity {
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             idCheckList.add(document.get("Id").toString());
                         }
-                        if (!idCheckList.contains(checkId))
-                            Toast.makeText(getApplicationContext(), "사용 가능한 아이디 입니다.", Toast.LENGTH_SHORT).show();
+                        if (joinIdCheckStr.isEmpty())
+                            shortToastMessage("아이디를 입력해 주세욧");
+                        else if (!idCheckList.contains(joinIdCheckStr))
+                            shortToastMessage("사용 가능한 아이디 입니다.");
                         else
-                            Toast.makeText(getApplicationContext(), "이미 등록된 아이디 입니다.", Toast.LENGTH_SHORT).show();
+                            shortToastMessage("이미 등록된 아이디 입니다.");
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -122,55 +102,81 @@ public class JoinActivity extends AppCompatActivity {
     }
 
     public void insertUserData() {
-        Map<String, Object> user = new HashMap<>();
+        Map<String, Object> userInfo = new HashMap<>();
 
         int radioBtn = radioGroup.getCheckedRadioButtonId();
         genderRaBtn = findViewById(radioBtn);
 
         String passStr = BCrypt.hashpw(joinPassEdTxt.getText().toString(), BCrypt.gensalt());
-        String checkStr = joinPassCheckEdTxt.getText().toString();
-        String emailStr = joinEmailEdTxt.getText().toString();
-//        String emailStr = validateEmail(joinEmailEdTxt.getText().toString());
+        String passCheckStr = joinPassCheckEdTxt.getText().toString();
+        String joinEmailStr = joinEmailEdTxt.getText().toString();
 
-        user.put("Id", joinIdEdTxt.getText().toString());
-        user.put("Pass", passStr);
-        user.put("Name", joinNameEdTxt.getText().toString());
-        user.put("Birth", joinBirthEdTxt.getText().toString());
-        user.put("Email", emailStr);
-        user.put("Gender", genderRaBtn.getText().toString());
-
-        if (!joinPassEdTxt.getText().toString().equals(checkStr)) {
-            Toast.makeText(getApplicationContext(), "비밀번호가 일치하지 않습니다.", Toast.LENGTH_SHORT).show();
+        if (!joinPassEdTxt.getText().toString().equals(passCheckStr)) {
+            shortToastMessage("비밀번호가 일치하지 않습니다.");
         } else if (idCheckList.contains(joinIdEdTxt.getText().toString())) {
-            Toast.makeText(getApplicationContext(), "사용중인 아이디로는 가입할 수 없습니다.", Toast.LENGTH_SHORT).show();
+            shortToastMessage("사용중인 아이디로는 가입할 수 없습니다.");
+        } else if (!Patterns.EMAIL_ADDRESS.matcher(joinEmailStr).matches()) {
+            shortToastMessage("이메일 형식으로 입력해 주세요.");
         } else {
+            userInfo.put("Id", joinIdEdTxt.getText().toString());
+            userInfo.put("Pass", passStr);
+            userInfo.put("Name", joinNameEdTxt.getText().toString());
+            userInfo.put("Birth", joinBirthEdTxt.getText().toString());
+            userInfo.put("Email", joinEmailStr);
+            userInfo.put("Gender", genderRaBtn.getText().toString());
+
             firestore.collection("userData")
-                    .add(user)
+                    .add(userInfo)
                     .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                         @Override
                         public void onSuccess(DocumentReference documentReference) {
-                            Toast.makeText(getApplicationContext(), "가입 성공", Toast.LENGTH_LONG).show();
+                            shortToastMessage("가입 성공");
                             goToMain();
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            Toast.makeText(getApplicationContext(), "가입 실패", Toast.LENGTH_SHORT).show();
+                            shortToastMessage("가입 실패");
                         }
                     });
         }
     }
 
-    public static boolean validateEmail(String emailStr) {
-        Matcher matcher = VALID_EMAIL_ADDRESS_REGEX.matcher(emailStr);
-        return matcher.find();
+    public void shortToastMessage(String msg) {
+        Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
     }
 
     public void goToMain() {
         Intent backIntent = new Intent(getApplicationContext(), LoginActivity.class);
         startActivity(backIntent);
         finish();
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        goToMain();
+    }
+
+    @Override
+    public void onClick(View view) {
+        int buttonId = view.getId();
+        switch (buttonId)
+        {
+            case R.id.idCheckBtn:
+                checkUserId();
+                break;
+            case R.id.submitBtn:
+                if (joinPassEdTxt.getText().toString().equals(joinPassCheckEdTxt.getText().toString()))
+                    insertUserData();
+                else
+                    insertUserData();
+                break;
+            case R.id.backBtn:
+                goToMain();
+                break;
+        }
     }
 }
 

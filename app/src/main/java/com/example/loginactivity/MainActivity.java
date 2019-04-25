@@ -26,27 +26,27 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        Init();
+        init();
         showUserInfo();
     }
 
-    public void Init()
+    public void init()
     {
-        userIdTxt = (TextView) findViewById(R.id.userId);
-        userPassTxt = (TextView) findViewById(R.id.userPass);
-        userNameTxt = (TextView) findViewById(R.id.userName);
-        userBirthTxt = (TextView) findViewById(R.id.userBirth);
-        userEmailTxt = (TextView) findViewById(R.id.userEmail);
-        userGenderTxt = (TextView) findViewById(R.id.userGender);
+        userIdTxt = (TextView) findViewById(R.id.userIdTxt);
+        userPassTxt = (TextView) findViewById(R.id.userPassTxt);
+        userNameTxt = (TextView) findViewById(R.id.userNameTxt);
+        userBirthTxt = (TextView) findViewById(R.id.userBirthTxt);
+        userEmailTxt = (TextView) findViewById(R.id.userEmailTxt);
+        userGenderTxt = (TextView) findViewById(R.id.userGenderTxt);
     }
 
     public void showUserInfo()
     {
         Intent getData = getIntent();
-        String data = getData.getStringExtra("IdInfo");
+        String getUserData = getData.getStringExtra("IdInfo");
         
         firestore.collection("userData")
-                .whereEqualTo("Id", data)
+                .whereEqualTo("Id", getUserData)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override

@@ -9,37 +9,37 @@
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/userId"
+            android:id="@+id/userIdTxt"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="20sp"/>
 
         <TextView
-            android:id="@+id/userPass"
+            android:id="@+id/userPassTxt"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="20sp"/>
 
         <TextView
-            android:id="@+id/userName"
+            android:id="@+id/userNameTxt"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="20sp"/>
 
         <TextView
-            android:id="@+id/userGender"
+            android:id="@+id/userGenderTxt"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="20sp"/>
 
         <TextView
-            android:id="@+id/userBirth"
+            android:id="@+id/userBirthTxt"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="20sp"/>
 
         <TextView
-            android:id="@+id/userEmail"
+            android:id="@+id/userEmailTxt"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="20sp"/>

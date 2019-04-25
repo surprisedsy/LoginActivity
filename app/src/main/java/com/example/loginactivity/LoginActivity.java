@@ -92,7 +92,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     public void onBackPressed() {
         if (System.currentTimeMillis() > mBackKeyClickTime + 1500) {
             mBackKeyClickTime = System.currentTimeMillis();
-            Toast.makeText(this, "한번 더 누르시면 종료됩니다.", Toast.LENGTH_SHORT).show();
+            shortToastMessage("한번 더 누르시면 종료됩니다.");
             return;
         }
         if (System.currentTimeMillis() <= mBackKeyClickTime + 1500) {
@@ -103,7 +103,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     @Override
     public void onClick(View view) {
         int id = view.getId();
-
         switch (id)
         {
             case R.id.loginBtn:
@@ -115,7 +114,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                                 String userId = idEdText.getText().toString();
                                 String userPass = passEdText.getText().toString();
 
-                                List<String> idList = new ArrayList<>();
+                                ArrayList<String> idList = new ArrayList<>();
 
                                 for (QueryDocumentSnapshot document : task.getResult()) {
                                     String convertId = document.get("Id").toString();
@@ -136,12 +135,12 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
                                             startActivity(loginIntent);
                                         } else {
-                                            Toast.makeText(getApplicationContext(), "비번을 확인해주세요", Toast.LENGTH_SHORT).show();
+                                            shortToastMessage("비밀번호를 확인해주세요");
                                         }
                                     }
                                 }
                                 if (!idList.contains(userId))
-                                    Toast.makeText(getApplicationContext(), "아이디를 확인해주세요", Toast.LENGTH_SHORT).show();
+                                    shortToastMessage("아이디를 확인해주세요");
                             }
                         })
                         .addOnFailureListener(new OnFailureListener() {
@@ -157,5 +156,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 finish();
                 break;
         }
+    }
+
+    public void shortToastMessage(String msg) {
+        Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
     }
 }
