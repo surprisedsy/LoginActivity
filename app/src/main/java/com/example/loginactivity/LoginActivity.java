@@ -2,6 +2,7 @@ package com.example.loginactivity;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.databinding.DataBindingUtil;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -12,6 +13,7 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.loginactivity.databinding.ActivityLoginBinding;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
@@ -23,15 +25,12 @@ import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.ArrayList;
 
-public class LoginActivity extends AppCompatActivity implements View.OnClickListener{
+public class LoginActivity extends AppCompatActivity{
 
     private long mBackKeyClickTime = 0;
 
     private FirebaseFirestore firestore = FirebaseFirestore.getInstance();
-
-    private Button loginBtn, joinBtn;
-    private CheckBox autoLoginCBox;
-    private EditText idEdText, passEdText;
+    private ActivityLoginBinding binding;
 
     private SharedPreferences userInfo;
     private SharedPreferences.Editor editor;
@@ -39,23 +38,63 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
-
-        init();
-
-        loginBtn.setOnClickListener(this);
-        joinBtn.setOnClickListener(this);
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_login);
+        binding.setLoginActiity(this);
 
         checkAutoLogin();
     }
 
-    public void init() {
-        idEdText = findViewById(R.id.idEdText);
-        passEdText = findViewById(R.id.passEdText);
+    public void login()
+    {
+        firestore.collection("userData")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        String userId = binding.idEdText.getText().toString();
+                        String userPass = binding.passEdText.getText().toString();
 
-        autoLoginCBox =  findViewById(R.id.autoLoginCheckBox);
-        loginBtn =  findViewById(R.id.loginBtn);
-        joinBtn =  findViewById(R.id.joinBtn);
+                        ArrayList<String> idList = new ArrayList<>();
+
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            String convertId = document.get("Id").toString();
+                            String convertPass = document.get("Pass").toString();
+
+                            idList.add(convertId);
+
+                            if (convertId.equals(userId)) {
+                                if (BCrypt.checkpw(userPass, convertPass)) {
+                                    Intent loginIntent = new Intent(getApplicationContext(), MainActivity.class);
+                                    loginIntent.putExtra("IdInfo", userId);
+
+                                    if(!binding.autoLoginCheckBox.isChecked())
+                                    {
+                                        binding.idEdText.setText(null);
+                                        binding.passEdText.setText(null);
+                                    }
+                                    startActivity(loginIntent);
+                                } else {
+                                    shortToastMessage("비밀번호를 확인해주세요");
+                                }
+                            }
+                        }
+                        if (!idList.contains(userId))
+                            shortToastMessage("아이디를 확인해주세요");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+    }
+
+    public void join()
+    {
+        Intent joinIntent = new Intent(getApplicationContext(), JoinActivity.class);
+        startActivity(joinIntent);
+        finish();
     }
 
     public void checkAutoLogin() {
@@ -63,17 +102,17 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         editor = userInfo.edit();
 
         if (userInfo.getBoolean("AutoLogin", false)) {
-            idEdText.setText(userInfo.getString("Id", ""));
-            passEdText.setText(userInfo.getString("Pass", ""));
-            autoLoginCBox.setChecked(true);
+            binding.idEdText.setText(userInfo.getString("Id", ""));
+            binding.passEdText.setText(userInfo.getString("Pass", ""));
+            binding.autoLoginCheckBox.setChecked(true);
         }
 
-        autoLoginCBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        binding.autoLoginCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
                 if (isChecked) {
-                    String userID = idEdText.getText().toString();
-                    String userPass = passEdText.getText().toString();
+                    String userID = binding.idEdText.getText().toString();
+                    String userPass = binding.passEdText.getText().toString();
 
                     editor.putString("Id", userID);
                     editor.putString("Pass", userPass);
@@ -96,64 +135,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         }
         if (System.currentTimeMillis() <= mBackKeyClickTime + 1500) {
             this.finish();
-        }
-    }
-
-    @Override
-    public void onClick(View view) {
-        int id = view.getId();
-        switch (id)
-        {
-            case R.id.loginBtn:
-                firestore.collection("userData")
-                        .get()
-                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                String userId = idEdText.getText().toString();
-                                String userPass = passEdText.getText().toString();
-
-                                ArrayList<String> idList = new ArrayList<>();
-
-                                for (QueryDocumentSnapshot document : task.getResult()) {
-                                    String convertId = document.get("Id").toString();
-                                    String convertPass = document.get("Pass").toString();
-
-                                    idList.add(convertId);
-
-                                    if (convertId.equals(userId)) {
-                                        if (BCrypt.checkpw(userPass, convertPass)) {
-                                            Intent loginIntent = new Intent(getApplicationContext(), MainActivity.class);
-                                            loginIntent.putExtra("IdInfo", userId);
-
-                                            if(!autoLoginCBox.isChecked())
-                                            {
-                                                idEdText.setText(null);
-                                                passEdText.setText(null);
-                                            }
-
-                                            startActivity(loginIntent);
-                                        } else {
-                                            shortToastMessage("비밀번호를 확인해주세요");
-                                        }
-                                    }
-                                }
-                                if (!idList.contains(userId))
-                                    shortToastMessage("아이디를 확인해주세요");
-                            }
-                        })
-                        .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                e.printStackTrace();
-                            }
-                        });
-                break;
-            case R.id.joinBtn:
-                Intent joinIntent = new Intent(getApplicationContext(), JoinActivity.class);
-                startActivity(joinIntent);
-                finish();
-                break;
         }
     }
 

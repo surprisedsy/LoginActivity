@@ -1,6 +1,7 @@
 package com.example.loginactivity;
 
 import android.content.Intent;
+import android.databinding.DataBindingUtil;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -13,6 +14,7 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
+import com.example.loginactivity.databinding.ActivityJoinBinding;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -28,55 +30,27 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.mindrot.jbcrypt.BCrypt;
 
-public class JoinActivity extends AppCompatActivity implements View.OnClickListener{
+public class JoinActivity extends AppCompatActivity {
 
     private FirebaseFirestore firestore = FirebaseFirestore.getInstance();
-
-    private EditText joinIdEdTxt, joinPassEdTxt, joinPassCheckEdTxt,
-            joinBirthEdTxt, joinEmailEdTxt, joinNameEdTxt;
-    private RadioGroup radioGroup;
+    private ActivityJoinBinding binding;
     private RadioButton genderRaBtn;
-    private Button idCheckBtn, submitBtn, backBtn;
 
     final List<String> idCheckList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_join);
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_join);
+        binding.setJoinActivity(this);
 
-        init();
-        buttons();
-    }
-
-    public void init() {
-        joinIdEdTxt = findViewById(R.id.joinIdText);
-        joinPassEdTxt = findViewById(R.id.joinPassText);
-        joinPassCheckEdTxt = findViewById(R.id.joinPassCheckText);
-        joinNameEdTxt = findViewById(R.id.joinNameText);
-        joinBirthEdTxt = findViewById(R.id.joinBirthText);
-        joinEmailEdTxt = findViewById(R.id.joinEmailText);
-
-        radioGroup = findViewById(R.id.radioGroup);
-
-        idCheckBtn = findViewById(R.id.idCheckBtn);
-        submitBtn = findViewById(R.id.submitBtn);
-        backBtn = findViewById(R.id.backBtn);
-    }
-
-    public void buttons() {
-        idCheckBtn.setOnClickListener(this);
-        submitBtn.setOnClickListener(this);
-        backBtn.setOnClickListener(this);
     }
 
     public void checkUserId() {
-        final String joinIdCheckStr = joinIdEdTxt.getText().toString();
+        final String joinIdCheckStr = binding.joinIdText.getText().toString();
 
         firestore.collection("userData")
                 .whereEqualTo("Id", joinIdCheckStr)
@@ -106,26 +80,27 @@ public class JoinActivity extends AppCompatActivity implements View.OnClickListe
     public void insertUserData() {
         Map<String, Object> userInfo = new HashMap<>();
 
-        int radioBtn = radioGroup.getCheckedRadioButtonId();
+        int radioBtn = binding.radioGroup.getCheckedRadioButtonId();
         genderRaBtn = findViewById(radioBtn);
 
-        String passStr = BCrypt.hashpw(joinPassEdTxt.getText().toString(), BCrypt.gensalt());
-        String passCheckStr = joinPassCheckEdTxt.getText().toString();
-        String joinEmailStr = joinEmailEdTxt.getText().toString();
-        String joinBirthStr = joinBirthEdTxt.getText().toString();
+        String idStr = binding.joinIdText.getText().toString();
+        String passStr = BCrypt.hashpw(binding.joinPassText.getText().toString(), BCrypt.gensalt());
+        String passCheckStr = binding.joinPassCheckText.getText().toString();
+        String joinEmailStr = binding.joinEmailText.getText().toString();
+        String joinBirthStr = binding.joinBirthText.getText().toString();
 
-        if (idCheckList.contains(joinIdEdTxt.getText().toString())) {
+        if (idCheckList.contains(idStr)) {
             shortToastMessage("사용중인 아이디로는 가입할 수 없습니다.");
-        } else if (!joinPassEdTxt.getText().toString().equals(passCheckStr)) {
+        } else if (!binding.joinPassText.getText().toString().equals(passCheckStr)) {
             shortToastMessage("비밀번호가 일치하지 않습니다.");
         } else if (!validationDate(joinBirthStr)) {
             shortToastMessage("올바른 생일 형식으로 입력해 주세요.");
         } else if (!Patterns.EMAIL_ADDRESS.matcher(joinEmailStr).matches()) {
             shortToastMessage("이메일 형식으로 입력해 주세요.");
         }  else {
-            userInfo.put("Id", joinIdEdTxt.getText().toString());
+            userInfo.put("Id", idStr);
             userInfo.put("Pass", passStr);
-            userInfo.put("Name", joinNameEdTxt.getText().toString());
+            userInfo.put("Name", binding.joinNameText.getText().toString());
             userInfo.put("Birth", joinBirthStr);
             userInfo.put("Email", joinEmailStr);
             userInfo.put("Gender", genderRaBtn.getText().toString());
@@ -177,26 +152,6 @@ public class JoinActivity extends AppCompatActivity implements View.OnClickListe
     public void onBackPressed() {
         super.onBackPressed();
         goToMain();
-    }
-
-    @Override
-    public void onClick(View view) {
-        int buttonId = view.getId();
-        switch (buttonId)
-        {
-            case R.id.idCheckBtn:
-                checkUserId();
-                break;
-            case R.id.submitBtn:
-                if (joinPassEdTxt.getText().toString().equals(joinPassCheckEdTxt.getText().toString()))
-                    insertUserData();
-                else
-                    insertUserData();
-                break;
-            case R.id.backBtn:
-                goToMain();
-                break;
-        }
     }
 }
 
