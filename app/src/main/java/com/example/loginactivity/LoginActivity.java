@@ -22,7 +22,6 @@ import com.google.firebase.firestore.QuerySnapshot;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener{
 
@@ -40,7 +39,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_login);
 
         init();
 

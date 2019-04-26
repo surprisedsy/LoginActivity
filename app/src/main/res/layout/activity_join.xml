@@ -1,13 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -16,11 +23,11 @@
 
             <EditText
                 android:id="@+id/joinIdText"
-                android:layout_width="0dp"
+                android:layout_width="272dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:hint="@string/joinIdText"
-                android:inputType="text"/>
+                android:inputType="text" />
 
             <Button
                 android:id="@+id/idCheckBtn"
@@ -49,7 +56,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/joinNameText"
-            android:inputType="text"/>
+            android:inputType="text" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -59,24 +66,28 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/gender"/>
+                android:layout_marginStart="3dp"
+                android:layout_marginTop="3dp"
+                android:textSize="18sp"
+                android:text="@string/gender" />
 
             <RadioGroup
                 android:id="@+id/radioGroup"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:layout_marginStart="3dp">
 
                 <RadioButton
                     android:id="@+id/maleRBtn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/male"/>
+                    android:text="@string/male" />
 
                 <RadioButton
                     android:id="@+id/femaleRBtn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/female"/>
+                    android:text="@string/female" />
 
             </RadioGroup>
 
@@ -87,7 +98,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/birth"
-            android:inputType="date"/>
+            android:inputType="date" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -99,7 +110,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/email"
-                android:inputType="textEmailAddress"/>
+                android:inputType="textEmailAddress" />
 
         </LinearLayout>
 
