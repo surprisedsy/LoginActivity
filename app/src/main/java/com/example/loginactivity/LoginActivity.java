@@ -6,11 +6,7 @@ import android.databinding.DataBindingUtil;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.loginactivity.databinding.ActivityLoginBinding;
@@ -48,46 +44,38 @@ public class LoginActivity extends AppCompatActivity{
     {
         firestore.collection("userData")
                 .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        String userId = binding.idEdText.getText().toString();
-                        String userPass = binding.passEdText.getText().toString();
+                .addOnCompleteListener(task -> {
+                    String userId = binding.idEdText.getText().toString();
+                    String userPass = binding.passEdText.getText().toString();
 
-                        ArrayList<String> idList = new ArrayList<>();
+                    ArrayList<String> idList = new ArrayList<>();
 
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            String convertId = document.get("Id").toString();
-                            String convertPass = document.get("Pass").toString();
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        String convertId = document.get("Id").toString();
+                        String convertPass = document.get("Pass").toString();
 
-                            idList.add(convertId);
+                        idList.add(convertId);
 
-                            if (convertId.equals(userId)) {
-                                if (BCrypt.checkpw(userPass, convertPass)) {
-                                    Intent loginIntent = new Intent(getApplicationContext(), MainActivity.class);
-                                    loginIntent.putExtra("IdInfo", userId);
+                        if (convertId.equals(userId)) {
+                            if (BCrypt.checkpw(userPass, convertPass)) {
+                                Intent loginIntent = new Intent(getApplicationContext(), MainActivity.class);
+                                loginIntent.putExtra("IdInfo", userId);
 
-                                    if(!binding.autoLoginCheckBox.isChecked())
-                                    {
-                                        binding.idEdText.setText(null);
-                                        binding.passEdText.setText(null);
-                                    }
-                                    startActivity(loginIntent);
-                                } else {
-                                    shortToastMessage("비밀번호를 확인해주세요");
+                                if(!binding.autoLoginCheckBox.isChecked())
+                                {
+                                    binding.idEdText.setText(null);
+                                    binding.passEdText.setText(null);
                                 }
+                                startActivity(loginIntent);
+                            } else {
+                                shortToastMessage("비밀번호를 확인해주세요");
                             }
                         }
-                        if (!idList.contains(userId))
-                            shortToastMessage("아이디를 확인해주세요");
                     }
+                    if (!idList.contains(userId))
+                        shortToastMessage("아이디를 확인해주세요");
                 })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        e.printStackTrace();
-                    }
-                });
+                .addOnFailureListener(e -> e.printStackTrace());
     }
 
     public void join()
@@ -107,21 +95,18 @@ public class LoginActivity extends AppCompatActivity{
             binding.autoLoginCheckBox.setChecked(true);
         }
 
-        binding.autoLoginCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                if (isChecked) {
-                    String userID = binding.idEdText.getText().toString();
-                    String userPass = binding.passEdText.getText().toString();
+        binding.autoLoginCheckBox.setOnCheckedChangeListener((compoundButton, isChecked) -> {
+            if (isChecked) {
+                String userID = binding.idEdText.getText().toString();
+                String userPass = binding.passEdText.getText().toString();
 
-                    editor.putString("Id", userID);
-                    editor.putString("Pass", userPass);
-                    editor.putBoolean("AutoLogin", true);
-                    editor.commit();
-                } else {
-                    editor.clear();
-                    editor.commit();
-                }
+                editor.putString("Id", userID);
+                editor.putString("Pass", userPass);
+                editor.putBoolean("AutoLogin", true);
+                editor.commit();
+            } else {
+                editor.clear();
+                editor.commit();
             }
         });
     }

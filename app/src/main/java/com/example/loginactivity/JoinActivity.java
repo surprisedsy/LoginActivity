@@ -7,11 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.Patterns;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import com.example.loginactivity.databinding.ActivityJoinBinding;
@@ -55,26 +51,18 @@ public class JoinActivity extends AppCompatActivity {
         firestore.collection("userData")
                 .whereEqualTo("Id", joinIdCheckStr)
                 .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            idCheckList.add(document.get("Id").toString());
-                        }
-                        if (joinIdCheckStr.isEmpty())
-                            shortToastMessage("아이디를 입력해 주세욧");
-                        else if (!idCheckList.contains(joinIdCheckStr))
-                            shortToastMessage("사용 가능한 아이디 입니다.");
-                        else
-                            shortToastMessage("이미 등록된 아이디 입니다.");
+                .addOnCompleteListener(task -> {
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        idCheckList.add(document.get("Id").toString());
                     }
+                    if (joinIdCheckStr.isEmpty())
+                        shortToastMessage("아이디를 입력해 주세욧");
+                    else if (!idCheckList.contains(joinIdCheckStr))
+                        shortToastMessage("사용 가능한 아이디 입니다.");
+                    else
+                        shortToastMessage("이미 등록된 아이디 입니다.");
                 })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        e.printStackTrace();
-                    }
-                });
+                .addOnFailureListener(e -> e.printStackTrace());
     }
 
     public void insertUserData() {
@@ -107,19 +95,11 @@ public class JoinActivity extends AppCompatActivity {
 
             firestore.collection("userData")
                     .add(userInfo)
-                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                        @Override
-                        public void onSuccess(DocumentReference documentReference) {
-                            shortToastMessage("가입 성공");
-                            goToMain();
-                        }
+                    .addOnSuccessListener(documentReference -> {
+                        shortToastMessage("가입 성공");
+                        goToMain();
                     })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            shortToastMessage("가입 실패");
-                        }
-                    });
+                    .addOnFailureListener(e -> shortToastMessage("가입 실패"));
         }
     }
 
