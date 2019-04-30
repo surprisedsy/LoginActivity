@@ -4,9 +4,14 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.databinding.DataBindingUtil;
 import android.support.annotation.NonNull;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.View;
 import android.widget.CompoundButton;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.example.loginactivity.databinding.ActivityLoginBinding;
@@ -25,10 +30,10 @@ public class LoginActivity extends AppCompatActivity{
 
     private long mBackKeyClickTime = 0;
 
-    private FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+    private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private ActivityLoginBinding binding;
 
-    private SharedPreferences userInfo;
+    SharedPreferences userInfo;
     private SharedPreferences.Editor editor;
 
     @Override
@@ -42,7 +47,7 @@ public class LoginActivity extends AppCompatActivity{
 
     public void login()
     {
-        firestore.collection("userData")
+        db.collection("userData")
                 .get()
                 .addOnCompleteListener(task -> {
                     String userId = binding.idEdText.getText().toString();
@@ -67,6 +72,7 @@ public class LoginActivity extends AppCompatActivity{
                                     binding.passEdText.setText(null);
                                 }
                                 startActivity(loginIntent);
+                                finish();
                             } else {
                                 shortToastMessage("비밀번호를 확인해주세요");
                             }
@@ -125,5 +131,28 @@ public class LoginActivity extends AppCompatActivity{
 
     public void shortToastMessage(String msg) {
         Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        ActionBar actionBar = getSupportActionBar();
+
+        actionBar.setDisplayShowCustomEnabled(true);
+        actionBar.setDisplayHomeAsUpEnabled(false);
+        actionBar.setDisplayShowTitleEnabled(false);
+        actionBar.setDisplayShowHomeEnabled(false);
+
+        LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+        View actionbar = inflater.inflate(R.layout.custom_actionbar, null);
+
+        actionBar.setCustomView(actionbar);
+
+        ImageButton btnOff = findViewById(R.id.btnOff);
+
+        actionbar.findViewById(R.id.btnBack).setVisibility(View.GONE);
+        actionbar.findViewById(R.id.btnOff).setVisibility(View.VISIBLE);
+        btnOff.setOnClickListener(v -> finish());
+
+        return true;
     }
 }

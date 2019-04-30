@@ -31,9 +31,9 @@ import org.mindrot.jbcrypt.BCrypt;
 
 public class JoinActivity extends AppCompatActivity {
 
-    private FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+    private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private ActivityJoinBinding binding;
-    private RadioButton genderRaBtn;
+    RadioButton genderRaBtn;
 
     final List<String> idCheckList = new ArrayList<>();
 
@@ -48,7 +48,7 @@ public class JoinActivity extends AppCompatActivity {
     public void checkUserId() {
         final String joinIdCheckStr = binding.joinIdText.getText().toString();
 
-        firestore.collection("userData")
+        db.collection("userData")
                 .whereEqualTo("Id", joinIdCheckStr)
                 .get()
                 .addOnCompleteListener(task -> {
@@ -93,7 +93,7 @@ public class JoinActivity extends AppCompatActivity {
             userInfo.put("Email", joinEmailStr);
             userInfo.put("Gender", genderRaBtn.getText().toString());
 
-            firestore.collection("userData")
+            db.collection("userData")
                     .add(userInfo)
                     .addOnSuccessListener(documentReference -> {
                         shortToastMessage("가입 성공");

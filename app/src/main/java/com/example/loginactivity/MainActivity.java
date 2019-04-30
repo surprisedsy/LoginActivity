@@ -3,8 +3,13 @@ package com.example.loginactivity;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.support.annotation.NonNull;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.View;
+import android.widget.ImageButton;
 
 import com.example.loginactivity.databinding.ActivityMainBinding;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -16,7 +21,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 public class MainActivity extends AppCompatActivity {
 
-    private FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+    private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private ActivityMainBinding binding;
 
     @Override
@@ -32,8 +37,8 @@ public class MainActivity extends AppCompatActivity {
     {
         Intent getData = getIntent();
         String getUserData = getData.getStringExtra("IdInfo");
-        
-        firestore.collection("userData")
+
+        db.collection("userData")
                 .whereEqualTo("Id", getUserData)
                 .get()
                 .addOnCompleteListener(task -> {
@@ -49,4 +54,37 @@ public class MainActivity extends AppCompatActivity {
                 })
                 .addOnFailureListener(e -> e.printStackTrace());
     }
+
+    private void goToLogin() {
+        Intent mainIntent = new Intent(getApplicationContext(), LoginActivity.class);
+        startActivity(mainIntent);
+        finish();
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        goToLogin();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        ActionBar actionBar = getSupportActionBar();
+
+        actionBar.setDisplayShowCustomEnabled(true);
+        actionBar.setDisplayHomeAsUpEnabled(false);
+        actionBar.setDisplayShowTitleEnabled(false);
+        actionBar.setDisplayShowHomeEnabled(false);
+
+        LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+        View actionbar = inflater.inflate(R.layout.custom_actionbar, null);
+
+        actionBar.setCustomView(actionbar);
+
+        ImageButton btnBack = findViewById(R.id.btnBack);
+        btnBack.setOnClickListener(v -> goToLogin());
+
+        return true;
+    }
+
 }
